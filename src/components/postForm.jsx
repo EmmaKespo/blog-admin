@@ -1,20 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function PostForm({ isOpen, onClose, onSave, postToEdit }) {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+ // const [title, setTitle] = useState("");
+ // const [content, setContent] = useState("");
+const [title, setTitle] = useState(postToEdit ? postToEdit.title : "");
+const [content, setContent] = useState(postToEdit ? postToEdit.content : "");
 
+// 1. Return early if not open (move this to the very top)
+if (!isOpen) return null;
   // Update form fields when postToEdit changes
-  useEffect(() => {
-    if (postToEdit) {
-      setTitle(postToEdit.title);
-      setContent(postToEdit.content);
-    } else {
-      setTitle("");
-      setContent("");
-    }
-  }, [postToEdit, isOpen]);
-  if (!isOpen) return null;
+  //useEffect(() => {
+    //if (postToEdit) {
+     // setTitle(postToEdit.title);
+     // setContent(postToEdit.content);
+    //} else {
+     // setTitle("");
+    //  setContent("");
+    //}
+  //}, [postToEdit, isOpen]);
+ // if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -56,14 +60,7 @@ export default function PostForm({ isOpen, onClose, onSave, postToEdit }) {
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          <textarea
-            id="content"
-            value={content}
-            placeholder="Enter the content of your post"
-            onChange={(e) => setContent(e.target.value)}
-            rows={4}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-          />    
+         
           <div className="flex justify-end space-x-2">
             <button
               type="button"

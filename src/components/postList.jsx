@@ -1,4 +1,4 @@
-import React from "react";
+
 export default function postList({ posts, onTogglePublish, onEdit, onDelete }) {
     if (!posts || posts.length === 0) {
         return <p className="text-gray-500">No posts available. Create your first post!</p>;
