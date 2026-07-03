@@ -3,6 +3,7 @@ import Footer from './components/footer';
 import Navbar from './components/Navbar';
 import PostForm from './components/PostForm';
 import PostList from './components/PostList';
+import Login from './components/login'
  const API_BASE_URL = "http://localhost:3000/api/posts"; // Adjust the URL based on your backend setup
 
 export default function App() {
@@ -10,9 +11,11 @@ export default function App() {
   const [posts, setPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPost, setCurrentPost] = useState(null);
-  //const [token, setToken] = useState("Bearer YOUR_TOKEN_HERE");
-  const token = localStorage.getItem('token') || "Bearer YOUR_COPIED_TOKEN_HERE";
-
+  
+  //track session token
+  //checks local storage immediately to see if yu previously login
+  const [token, setToken] = useState(localStorage.getItem('token') || "Bearer YOUR_COPIED_TOKEN_HERE");
+//The setTimeout(..., 0) forces the browser to wait until React is completely finished rendering before it runs your API call.
 const fetchPosts = useCallback(async () => {
   try {
     const response = await fetch(API_BASE_URL);
@@ -24,13 +27,25 @@ const fetchPosts = useCallback(async () => {
 }, []);
 
 useEffect(() => {
-  // Defers the execution by 0ms
-  const timer = setTimeout(() => {
-    fetchPosts();
-  }, 0);
+  // Only query your publications database if a valid token is active
+  if (token) {
+    const timer = setTimeout(() => {
+      fetchPosts();
+    }, 0);
 
-  return () => clearTimeout(timer);
-}, [fetchPosts]); 
+    return () => clearTimeout(timer);
+  }
+}, [token, fetchPosts]); // fetchPosts is safe here because it uses useCallback
+
+
+//useEffect(() => {
+  // Defers the execution by 0ms, breaking the synchronous link
+ // const timer = setTimeout(() => {
+ //   fetchPosts();
+ // }, 0);
+
+ // return () => clearTimeout(timer);
+//}, [fetchPosts]); 
 
 
   //const fetchPosts = async () => {
@@ -45,6 +60,20 @@ useEffect(() => {
  // useEffect (() => {
   //  fetchPosts()
 //  }, []);
+
+// SUCCES STEP
+const handleLoginSucces = (receivedToken) => {
+  //store it inside the state variable to unlock the dashboard layout view
+  setToken(receivedToken);
+  // Write it directly to your browser memory so you dont logout when refresh browser
+  localStorage.setItem('token', receivedToken);
+};
+// EXIT STEP: clears out tracking variables instantly
+const handleLogout = () => {
+  setToken('');
+  localStorage.removeItem('token');
+  setPosts([]); // wipe visible dashboard data arrays for data sanitation
+};
 
 // CREATE or UPDATE POST LOGIC
 const handlesSavePost = async (formData) => {
@@ -110,6 +139,11 @@ const handleTogglePublish = async (id, targetStatus) => {
        console.error("Error deleting post:",  error);
   }
       }
+      // CONDITIONAL INTERCEPT ROUTE BLOCKER:
+      // If token is missing, break standard dashboard loading pipeline and render login component
+      if (!token){
+        return <Login onLoginSuccess={handleLoginSucces} />;
+      }
 
       return(
         <div className='min-h-screen bg-slate-950 text-slate-100 font-sans'>
@@ -117,10 +151,18 @@ const handleTogglePublish = async (id, targetStatus) => {
           <main className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8'>
           {/* Header section */}
           <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8'>
-            <div>
             <h2 className='text-2xl font-extrabold text-white'>Your Publications</h2>
             <p className='text-slate-400 text-sm'>Manage drafts, edit articles, and publish content</p>
           </div>
+           
+           {/* dashbord control buttons group */}
+           <div className='flex gap-3'>
+            <button
+            onClick={handleLogout}
+            className='bg-slate-600 border border-slate-500 hover:bg-slate-600 text-slate-300 font-medium px-4 py-2.5 rounded-lg transition-colors'>
+                LogOut
+            </button>
+
           <button 
           onClick={() => { setCurrentPost(null); setIsModalOpen(true);  }  }
           className='bg-indigo-600 hover:bg-indigo-800 text-white font-medium px-4 py-2.5 rounded-lg transition-colors shadow-lg shadow-indigo-600'>
