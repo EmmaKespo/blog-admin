@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Footer from './components/footer';
 import Navbar from './components/Navbar';
 import PostForm from './components/PostForm';
@@ -12,37 +12,25 @@ export default function App() {
   const [currentPost, setCurrentPost] = useState(null);
   //const [token, setToken] = useState("Bearer YOUR_TOKEN_HERE");
   const token = localStorage.getItem('token') || "Bearer YOUR_COPIED_TOKEN_HERE";
-  //const savedToken = localStorage.getItem('token');
-   // if (savedToken) setToken('Bearer ${savedToken}');
 
-// ... inside your component:
+const fetchPosts = useCallback(async () => {
+  try {
+    const response = await fetch(API_BASE_URL);
+    const data = await response.json();
+    setPosts(data);
+  } catch (error) {
+    console.error("error loading posts:", error);
+  }
+}, []);
 
 useEffect(() => {
-  // 1. Create a controller instance
-  const controller = new AbortController();
-  const signal = controller.signal;
+  // Defers the execution by 0ms
+  const timer = setTimeout(() => {
+    fetchPosts();
+  }, 0);
 
-  const fetchPosts = async () => {
-    try {
-      // 2. Pass the signal to the fetch call
-      const response = await fetch(API_BASE_URL, { signal });
-      const data = await response.json();
-      setPosts(data);
-    } catch (error) {
-      // 3. Ignore errors caused by intentional cancellation
-      if (error.name !== 'AbortError') {
-        console.error("error loading posts:", error);
-      }
-    }
-  };
-
-  fetchPosts();
-
-  // 4. Return the cleanup function to abort on unmount
-  return () => {
-    controller.abort();
-  };
-}, []); // Empty array ensures it only setups on mount
+  return () => clearTimeout(timer);
+}, [fetchPosts]); 
 
 
   //const fetchPosts = async () => {
