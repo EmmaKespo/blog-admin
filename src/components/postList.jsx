@@ -1,3 +1,4 @@
+import AdminCommentDropdown from "./AdminComment";
 
 export default function postList({ posts, onTogglePublish, onEdit, onDelete }) {
     if (!posts || posts.length === 0) {
@@ -17,6 +18,7 @@ export default function postList({ posts, onTogglePublish, onEdit, onDelete }) {
                         <span className="px-2 py-1 rounded text-sm bg-gray-100 text-gray-800">
                             {new Date(post.createdAt).toLocaleDateString()}
                         </span> </div>
+                        <AdminCommentDropdown postId={post.id} />
                         {/* dashboard control action */}
                         <div className="flex justify-end space-x-2 mt-4">
                         <button
