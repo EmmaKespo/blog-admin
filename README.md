@@ -5,6 +5,6 @@ this dashboard will allow admin to view all posts (drafts and published), write 
  //postList.jsx
  dashboard to display blog list with action to toggle visibility, edit and delete them
  //App.jsx
- communicate with backend usw jwt from memory and authenticate post
+ communicate with backend using jwt from memory and authenticate post
 //login.jsx 
 send passwrd and email (login credential to backend)
